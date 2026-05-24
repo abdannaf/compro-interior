@@ -1,0 +1,176 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+
+import service1 from '../../assets/grid-2.png';
+import service2 from '../../assets/grid-3.png';
+import service3 from '../../assets/grid-1.png';
+
+const services = [
+    {
+        icon: "mdi:floor-plan",
+        title: "Interior Design",
+        desc: "We create beautiful, functional spaces tailored to your lifestyle. Our designers combine space planning, color schemes, lighting layouts, and material sourcing to design your dream interiors.",
+        details: [
+            "Comprehensive 2D & 3D space layouts",
+            "Color consultation & material mood boards",
+            "Bespoke ceiling, lighting, and floor plans",
+            "Sourcing of curtains, lighting fixtures, and decor"
+        ],
+        slug: "interior-design",
+        image: service1
+    },
+    {
+        icon: "mdi:hammer-wrench",
+        title: "Renovation & Remodeling",
+        desc: "Transform your existing house or office into a premium, modern space. Our team handles everything from minor cosmetic upgrades to full structural gut renovations.",
+        details: [
+            "Full home, bathroom, and kitchen remodeling",
+            "Structural wall removals and layouts re-partitioning",
+            "Plumbing, electrical, and wiring upgrades",
+            "High-end paint, tile, and flooring installation"
+        ],
+        slug: "renovation",
+        image: service2
+    },
+    {
+        icon: "mdi:sofa-single",
+        title: "Furniture & Custom Fitout",
+        desc: "Max out your space efficiency and aesthetic with our custom millwork and cabinetry. Our craftspeople build custom-fitted furniture designed to last a lifetime.",
+        details: [
+            "Bespoke built-in wardrobes and cabinets",
+            "Custom modular kitchen cabinets and islands",
+            "Workspace and TV media console fitting",
+            "Premium wood selection and premium hardware selections"
+        ],
+        slug: "furniture-consultation",
+        image: service3
+    },
+];
+
+const processes = [
+    { step: "01", title: "Consultation", desc: "We sit down to understand your goals, budget, design aesthetic, and functional requirements." },
+    { step: "02", title: "Concept Design", desc: "Our team drafts initial layout plans, 3D renderings, and selected materials for your review." },
+    { step: "03", title: "Construction", desc: "Our experienced craftspeople and builders execute the designs with high precision under careful supervision." },
+    { step: "04", title: "Handover", desc: "We conduct a thorough quality walkthrough, clean the site, and welcome you into your new custom space." }
+];
+---
+
+<Layout title="Our Services | BuildPRO" description="Discover our premium Interior Design, Renovation, and Custom Furniture services tailored to bring your vision to life." navVariant="solid">
+    <main class="pt-24 min-h-screen bg-white font-poppins">
+        
+        <!-- Hero Header -->
+        <section class="bg-gray-900 text-white py-16 px-6 md:px-20 lg:px-24">
+            <div class="max-w-4xl">
+                <nav class="flex gap-2 text-xs uppercase tracking-wider text-amber-400 mb-4">
+                    <a href="/" class="hover:underline">Home</a>
+                    <span>/</span>
+                    <span class="text-white/60">Services</span>
+                </nav>
+                <h1 class="text-4xl md:text-5xl font-bold uppercase tracking-tight">Our Services & Solutions</h1>
+                <p class="text-gray-400 text-sm md:text-base mt-4 max-w-2xl leading-relaxed">
+                    From simple kitchen transformations to large-scale commercial fitouts, we offer end-to-end interior design and construction services tailored to your exact needs.
+                </p>
+            </div>
+        </section>
+
+        <!-- Services Details (Alternating layout) -->
+        <section class="py-20 px-6 md:px-20 lg:px-24 max-w-7xl mx-auto flex flex-col gap-24">
+            {services.map((service, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                    <div id={service.slug} class:list={[
+                        "flex flex-col lg:flex-row gap-12 items-center scroll-mt-28",
+                        isEven ? "" : "lg:flex-row-reverse"
+                    ]}>
+                        <!-- Image Column -->
+                        <div class="w-full lg:w-1/2">
+                            <div class="overflow-hidden rounded-sm shadow-sm aspect-[4/3]">
+                                <img
+                                    src={service.image.src}
+                                    alt={service.title}
+                                    class="w-full h-full object-cover hover:scale-102 transition duration-500"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Text Column -->
+                        <div class="w-full lg:w-1/2 flex flex-col gap-6">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-amber-400/10 p-3 rounded-full text-amber-500 w-fit">
+                                    <Icon name={service.icon} size={28} />
+                                </div>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 uppercase tracking-tight">{service.title}</h2>
+                            </div>
+
+                            <p class="text-gray-500 leading-relaxed">
+                                {service.desc}
+                            </p>
+
+                            <!-- Bullet details -->
+                            <ul class="flex flex-col gap-3 pt-2">
+                                {service.details.map((detail) => (
+                                    <li class="flex items-start gap-2.5 text-sm text-gray-700">
+                                        <Icon name="mdi:check-circle" class="text-amber-400 mt-0.5 shrink-0" size={18} />
+                                        <span>{detail}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <div class="pt-4">
+                                <a
+                                    href="/#contact"
+                                    class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 transition text-white px-6 py-3 text-xs font-semibold uppercase tracking-wider rounded-sm"
+                                >
+                                    Inquire Services <Icon name="mdi:arrow-right" size={16} />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+        </section>
+
+        <!-- Our Process Section -->
+        <section class="bg-gray-50 py-20 px-6 md:px-20 lg:px-24">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <p class="text-amber-500 text-xs font-bold uppercase tracking-widest mb-3">Workflow</p>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 uppercase tracking-tight">Our Working Process</h2>
+                    <p class="text-gray-500 text-sm mt-3">
+                        How we bring your dream designs from initial sketch to physical reality.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {processes.map((proc) => (
+                        <div class="bg-white border border-gray-100 p-8 rounded-sm relative shadow-sm hover:shadow-md transition-shadow duration-300">
+                            <span class="text-5xl font-black text-amber-400/20 absolute top-4 right-4">{proc.step}</span>
+                            <h3 class="font-bold text-lg text-gray-900 mb-3">{proc.title}</h3>
+                            <p class="text-gray-500 text-sm leading-relaxed">{proc.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20 px-6 md:px-20 lg:px-24 text-center bg-amber-400">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 uppercase tracking-tight mb-6">
+                    Ready to build your next dream space?
+                </h2>
+                <p class="text-gray-900/80 text-sm md:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+                    Collaborate with the BuildPRO team today. Contact us for a free project assessment and consultation with our expert architects.
+                </p>
+                <a
+                    href="/#contact"
+                    class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 transition text-white px-8 py-4 text-xs font-semibold uppercase tracking-widest rounded-sm"
+                >
+                    Contact Our Team Now <Icon name="mdi:arrow-right" size={16} />
+                </a>
+            </div>
+        </section>
+
+    </main>
+</Layout>

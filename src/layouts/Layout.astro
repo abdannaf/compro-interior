@@ -1,23 +1,48 @@
+---
+import Footer from "../components/Footer.jsx"
+import Navbar from "../components/Navbar/Navbar.jsx"
+import '../styles/global.css'
+
+interface Props {
+	title?: string;
+	description?: string;
+	ogTitle?: string;
+	ogDescription?: string;
+	navVariant?: 'transparent' | 'solid';
+}
+
+const {
+	title = "BuildPRO - Professional Interior Design & Construction Services",
+	description = "BuildPRO - Professional interior design and construction services. Transform your space with our expert team.",
+	ogTitle = "BuildPRO - Professional Interior Design & Construction",
+	ogDescription = "Transform your space with expert interior design and construction services",
+	navVariant = 'solid',
+} = Astro.props;
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content={description} />
+		<meta name="keywords" content="interior design, construction, renovation, contractor, home design, BuildPRO" />
+		<meta name="author" content="BuildPRO" />
+		<meta property="og:title" content={ogTitle} />
+		<meta property="og:description" content={ogDescription} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://buildpro.com" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={ogTitle} />
+		<meta name="twitter:description" content={ogDescription} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
 	</head>
-	<body>
+	<body class="font-poppins">
+		<Navbar variant={navVariant} client:only="react" />
 		<slot />
+		<Footer client:only="react" />
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

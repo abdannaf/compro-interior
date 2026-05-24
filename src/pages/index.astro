@@ -1,11 +1,26 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import About from '../components/About.jsx';
+import Hero from '../components/Hero.jsx';
+import Services from '../components/Services.jsx';
+import Wcu from '../components/Wcu.jsx';
+import ProjectsPreview from '../components/ProjectsPreview.jsx'
+import Testimonials from '../components/Testimonials.jsx'
+import Contact from '../components/Contact.jsx';
+import Achievements from '../components/Achievements.jsx'
+import BlogsPreview from '../components/BlogsPreview.jsx'
+import Banner from '../components/Banner.jsx'
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
+<Layout navVariant="transparent">
+	<Hero client:load />
+	<About client:load />
+	<Wcu client:load />
+	<Services client:load />
+	<Achievements client:load />
+	<ProjectsPreview client:load />
+	<Banner client:load />
+	<BlogsPreview client:load />
+	<Testimonials client:load />
+	<Contact client:load />
 </Layout>

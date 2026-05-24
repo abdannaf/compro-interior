@@ -1,0 +1,139 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+
+import proj1 from '../../assets/grid-1.png';
+import proj2 from '../../assets/grid-2.png';
+import proj3 from '../../assets/grid-3.png';
+
+const fallbackImages = [proj1, proj2, proj3];
+
+const projects: CollectionEntry<'projects'>[] = await getCollection('projects');
+
+// Extract unique categories for filter buttons
+const categories = ['All', ...new Set(projects.map(p => p.data.category))];
+---
+
+<Layout title="Our Projects | BuildPRO" description="Discover our portfolio of award-winning architectural, interior design, and construction projects across Indonesia." navVariant="solid">
+    <main class="pt-24 min-h-screen bg-white">
+        <!-- Hero Header -->
+        <section class="bg-gray-900 text-white py-16 px-6 md:px-20 lg:px-24">
+            <div class="max-w-4xl">
+                <nav class="flex gap-2 text-xs uppercase tracking-wider text-amber-400 mb-4">
+                    <a href="/" class="hover:underline">Home</a>
+                    <span>/</span>
+                    <span class="text-white/60">Projects</span>
+                </nav>
+                <h1 class="text-4xl md:text-5xl font-bold uppercase tracking-tight">Our Projects Portfolio</h1>
+                <p class="text-gray-400 text-sm md:text-base mt-4 max-w-2xl leading-relaxed">
+                    A curated selection of our residential, commercial, and hospitality spaces. From sleek office structures to luxurious homes, every project embodies our commitment to quality.
+                </p>
+            </div>
+        </section>
+
+        <!-- Projects Filter & Grid Section -->
+        <section class="py-12 px-6 md:px-20 lg:px-24 max-w-7xl mx-auto">
+            
+            <!-- Category Filter Buttons -->
+            <div class="flex flex-wrap gap-3 mb-10 border-b border-gray-100 pb-6">
+                {categories.map((cat, i) => (
+                    <button
+                        class:list={[
+                            "px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition rounded-sm border cursor-pointer",
+                            i === 0 
+                                ? "bg-amber-400 border-amber-400 text-gray-900" 
+                                : "bg-transparent border-gray-200 text-gray-600 hover:border-amber-400"
+                        ]}
+                        data-filter={cat}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+
+            <!-- Projects Grid -->
+            {projects.length === 0 ? (
+                <div class="text-center py-20 text-gray-500">
+                    <Icon name="mdi:earth" size={48} class="mx-auto text-gray-300 mb-4" />
+                    <p class="text-lg">No projects found. Check back later!</p>
+                </div>
+            ) : (
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="projects-grid">
+                    {projects.map((project, index) => {
+                        const imageSrc = fallbackImages[index % fallbackImages.length].src;
+                        return (
+                            <div 
+                                class="project-card flex flex-col group bg-white border border-gray-100 rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                                data-category={project.data.category}
+                            >
+                                <!-- Image Container -->
+                                <div class="overflow-hidden relative h-72">
+                                    <img
+                                        src={imageSrc}
+                                        alt={project.data.title}
+                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                                    />
+                                    <span class="absolute top-4 right-4 bg-gray-900/90 backdrop-blur-sm text-amber-400 text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-sm">
+                                        {project.data.category}
+                                    </span>
+                                </div>
+
+                                <!-- Text Details -->
+                                <div class="p-6 flex flex-col flex-1 bg-white">
+                                    <p class="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1 flex items-center gap-1">
+                                        <Icon name="mdi:map-marker-outline" class="text-amber-400" /> {project.data.location}
+                                    </p>
+                                    <h2 class="font-bold text-xl text-gray-900 pt-1 group-hover:text-amber-400 transition duration-300">
+                                        {project.data.title}
+                                    </h2>
+                                    <p class="text-gray-500 text-sm mt-3 line-clamp-2 leading-relaxed">
+                                        {project.data.excerpt}
+                                    </p>
+                                    <a 
+                                        href={`/projects/${project.id}`} 
+                                        class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-900 hover:text-amber-400 transition-colors pt-4 border-t border-gray-50"
+                                    >
+                                        View Details <Icon name="mdi:arrow-right" size={14} />
+                                    </a>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </section>
+    </main>
+</Layout>
+
+<script>
+    // Client-side category filtering logic
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const cards = document.querySelectorAll('.project-card');
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Get active category filter
+            const filterValue = btn.getAttribute('data-filter');
+
+            // Toggle active styling on buttons
+            filterButtons.forEach(b => {
+                b.classList.remove('bg-amber-400', 'border-amber-400', 'text-gray-900');
+                b.classList.add('bg-transparent', 'border-gray-200', 'text-gray-600');
+            });
+            btn.classList.add('bg-amber-400', 'border-amber-400', 'text-gray-900');
+            btn.classList.remove('bg-transparent', 'border-gray-200', 'text-gray-600');
+
+            // Hide/Show cards
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                
+                if (filterValue === 'All' || cardCategory === filterValue) {
+                    (card as HTMLElement).style.display = 'flex';
+                } else {
+                    (card as HTMLElement).style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
