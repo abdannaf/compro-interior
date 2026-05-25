@@ -12,7 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^10.1.1",
+    "@astrojs/cloudflare": "^13.5.4",
     "@astrojs/react": "^5.0.5",
     "@iconify-json/ant-design": "^1.2.5",
     "@iconify-json/guidance": "^1.2.2",
