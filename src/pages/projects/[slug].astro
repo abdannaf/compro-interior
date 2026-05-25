@@ -2,27 +2,64 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { Icon } from 'astro-icon/components';
+import { getSupabaseAdmin, hasSupabaseConfig } from '../../lib/server/supabaseAdmin';
 
 import proj1 from '../../assets/grid-1.png';
 import proj2 from '../../assets/grid-2.png';
 import proj3 from '../../assets/grid-3.png';
 
-export async function getStaticPaths() {
-    const projects = await getCollection('projects');
-    return projects.map((entry) => ({
-        params: { slug: entry.id },
-        props: { entry },
-    }));
-}
-
-const { entry } = Astro.props;
-const { Content } = await render(entry);
-
 // Determine the consistent image to display
 const fallbackImages = [proj1, proj2, proj3];
-const allProjects = await getCollection('projects');
-const projectIndex = allProjects.findIndex((p) => p.id === entry.id);
-const imageSrc = fallbackImages[projectIndex !== -1 ? projectIndex % fallbackImages.length : 0].src;
+const slug = Astro.params.slug;
+let entry = null;
+let Content = null;
+let plainContent = '';
+let imageSrc = fallbackImages[0].src;
+
+if (hasSupabaseConfig()) {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('slug', slug)
+        .eq('published', true)
+        .maybeSingle();
+
+    if (data) {
+        entry = {
+            id: data.slug,
+            data: {
+                title: data.title,
+                excerpt: data.excerpt || '',
+                client: data.client || '-',
+                location: data.location || '-',
+                category: data.category || 'General',
+                year: data.year || '-',
+            },
+        };
+        plainContent = data.content || '';
+        imageSrc = data.image_url || imageSrc;
+    }
+}
+
+if (!entry && hasSupabaseConfig()) {
+    return Astro.redirect('/projects');
+}
+
+if (!entry) {
+    const allProjects = await getCollection('projects');
+    const contentEntry = allProjects.find((project) => project.id === slug);
+
+    if (!contentEntry) {
+        return Astro.redirect('/projects');
+    }
+
+    entry = contentEntry;
+    const rendered = await render(contentEntry);
+    Content = rendered.Content;
+    const projectIndex = allProjects.findIndex((p) => p.id === entry.id);
+    imageSrc = fallbackImages[projectIndex !== -1 ? projectIndex % fallbackImages.length : 0].src;
+}
 ---
 
 <Layout title={`${entry.data.title} | BuildPRO`} description={entry.data.excerpt} navVariant="solid">
@@ -87,7 +124,7 @@ const imageSrc = fallbackImages[projectIndex !== -1 ? projectIndex % fallbackIma
                 <!-- Markdown Content Area (Right) -->
                 <div class="w-full lg:w-2/3">
                     <div class="project-content text-gray-700 leading-relaxed text-base">
-                        <Content />
+                        {Content ? <Content /> : plainContent.split('\n\n').filter(Boolean).map((paragraph) => <p>{paragraph}</p>)}
                     </div>
 
                     <!-- Navigation Footer -->

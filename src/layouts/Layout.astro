@@ -1,5 +1,5 @@
 ---
-import Footer from "../components/Footer.jsx"
+import Footer from "../components/Footer/Footer.jsx"
 import Navbar from "../components/Navbar/Navbar.jsx"
 import '../styles/global.css'
 
@@ -41,8 +41,10 @@ const {
 		<title>{title}</title>
 	</head>
 	<body class="font-poppins">
-		<Navbar variant={navVariant} client:only="react" />
-		<slot />
+		<Navbar client:only="react" variant={navVariant} />
+		<main id="main-content">
+			<slot />
+		</main>
 		<Footer client:only="react" />
 	</body>
 </html>

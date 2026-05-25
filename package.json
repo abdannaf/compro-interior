@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^10.1.1",
     "@astrojs/react": "^5.0.5",
     "@iconify-json/ant-design": "^1.2.5",
     "@iconify-json/guidance": "^1.2.2",
@@ -19,6 +20,7 @@
     "@iconify-json/icon-park-outline": "^1.2.4",
     "@iconify-json/lsicon": "^1.2.5",
     "@iconify-json/mdi": "^1.2.3",
+    "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/vite": "^4.3.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",

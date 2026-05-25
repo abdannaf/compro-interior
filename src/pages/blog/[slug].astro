@@ -2,28 +2,64 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { Icon } from 'astro-icon/components';
+import { getSupabaseAdmin, hasSupabaseConfig } from '../../lib/server/supabaseAdmin';
 
 import blog1 from '../../assets/grid-1.png';
 import blog2 from '../../assets/grid-2.png';
 import blog3 from '../../assets/grid-3.png';
 import blog4 from '../../assets/grid-4.png';
 
-export async function getStaticPaths() {
-    const blogs = await getCollection('blog');
-    return blogs.map((entry) => ({
-        params: { slug: entry.id },
-        props: { entry },
-    }));
-}
-
-const { entry } = Astro.props;
-const { Content } = await render(entry);
-
 // Determine the consistent image to display
 const fallbackImages = [blog1, blog2, blog3, blog4];
-const allBlogs = await getCollection('blog');
-const blogIndex = allBlogs.findIndex((b) => b.id === entry.id);
-const imageSrc = fallbackImages[blogIndex !== -1 ? blogIndex % fallbackImages.length : 0].src;
+const slug = Astro.params.slug;
+let entry = null;
+let Content = null;
+let plainContent = '';
+let imageSrc = fallbackImages[0].src;
+
+if (hasSupabaseConfig()) {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('slug', slug)
+        .eq('published', true)
+        .maybeSingle();
+
+    if (data) {
+        entry = {
+            id: data.slug,
+            data: {
+                title: data.title,
+                excerpt: data.excerpt || '',
+                author: data.author || 'BuildPRO Team',
+                date: data.created_at,
+                tags: data.tags || [],
+            },
+        };
+        plainContent = data.content || '';
+        imageSrc = data.image_url || imageSrc;
+    }
+}
+
+if (!entry && hasSupabaseConfig()) {
+    return Astro.redirect('/blog');
+}
+
+if (!entry) {
+    const allBlogs = await getCollection('blog');
+    const contentEntry = allBlogs.find((blog) => blog.id === slug);
+
+    if (!contentEntry) {
+        return Astro.redirect('/blog');
+    }
+
+    entry = contentEntry;
+    const rendered = await render(contentEntry);
+    Content = rendered.Content;
+    const blogIndex = allBlogs.findIndex((b) => b.id === entry.id);
+    imageSrc = fallbackImages[blogIndex !== -1 ? blogIndex % fallbackImages.length : 0].src;
+}
 ---
 
 <Layout title={`${entry.data.title} | BuildPRO`} description={entry.data.excerpt} navVariant="solid">
@@ -36,7 +72,7 @@ const imageSrc = fallbackImages[blogIndex !== -1 ? blogIndex % fallbackImages.le
                 <span>/</span>
                 <a href="/blog" class="hover:underline">Blog</a>
                 <span>/</span>
-                <span class="text-gray-400 truncate max-w-[200px]">{entry.data.title}</span>
+                <span class="text-gray-400 truncate max-w-50">{entry.data.title}</span>
             </nav>
 
             <h1 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight uppercase tracking-tight mb-6">
@@ -75,7 +111,7 @@ const imageSrc = fallbackImages[blogIndex !== -1 ? blogIndex % fallbackImages.le
 
             <!-- Markdown content body -->
             <div class="article-content max-w-none text-gray-700 leading-relaxed text-base">
-                <Content />
+                {Content ? <Content /> : plainContent.split('\n\n').filter(Boolean).map((paragraph) => <p>{paragraph}</p>)}
             </div>
 
             <!-- Share/Footer -->
