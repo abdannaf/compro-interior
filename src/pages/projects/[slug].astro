@@ -1,0 +1,190 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/StaticIcon.astro';
+import { getSupabaseAdmin, hasSupabaseConfig } from '../../lib/server/supabaseAdmin';
+
+import proj1 from '../../assets/grid-1.png';
+import proj2 from '../../assets/grid-2.png';
+import proj3 from '../../assets/grid-3.png';
+
+// Determine the consistent image to display
+const fallbackImages = [proj1, proj2, proj3];
+const slug = Astro.params.slug;
+let entry = null;
+let Content = null;
+let plainContent = '';
+let imageSrc = fallbackImages[0].src;
+
+if (hasSupabaseConfig()) {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('slug', slug)
+        .eq('published', true)
+        .maybeSingle();
+
+    if (data) {
+        entry = {
+            id: data.slug,
+            data: {
+                title: data.title,
+                excerpt: data.excerpt || '',
+                client: data.client || '-',
+                location: data.location || '-',
+                category: data.category || 'General',
+                year: data.year || '-',
+            },
+        };
+        plainContent = data.content || '';
+        imageSrc = data.image_url || imageSrc;
+    }
+}
+
+if (!entry && hasSupabaseConfig()) {
+    return Astro.redirect('/projects');
+}
+
+if (!entry) {
+    const allProjects = await getCollection('projects');
+    const contentEntry = allProjects.find((project) => project.id === slug);
+
+    if (!contentEntry) {
+        return Astro.redirect('/projects');
+    }
+
+    entry = contentEntry;
+    const rendered = await render(contentEntry);
+    Content = rendered.Content;
+    const projectIndex = allProjects.findIndex((p) => p.id === entry.id);
+    imageSrc = fallbackImages[projectIndex !== -1 ? projectIndex % fallbackImages.length : 0].src;
+}
+---
+
+<Layout title={`${entry.data.title} | BuildPRO`} description={entry.data.excerpt} navVariant="solid">
+    <main class="pt-24 min-h-screen bg-white font-poppins">
+        
+        <!-- Breadcrumb & Header Title -->
+        <div class="max-w-6xl mx-auto px-6 pt-8">
+            <nav class="flex gap-2 text-xs uppercase tracking-wider text-amber-400 mb-6">
+                <a href="/" class="hover:underline">Home</a>
+                <span>/</span>
+                <a href="/projects" class="hover:underline">Projects</a>
+                <span>/</span>
+                <span class="text-gray-400 truncate max-w-50">{entry.data.title}</span>
+            </nav>
+
+            <h1 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight uppercase tracking-tight mb-8">
+                {entry.data.title}
+            </h1>
+        </div>
+
+        <!-- Featured Project Image Banner -->
+        <section class="max-w-6xl mx-auto px-6 mb-12">
+            <div class="overflow-hidden rounded-sm shadow-sm aspect-video max-h-125">
+                <img
+                    src={imageSrc}
+                    alt={entry.data.title}
+                    class="w-full h-full object-cover"
+                />
+            </div>
+        </section>
+
+        <!-- Project Info Grid -->
+        <section class="max-w-6xl mx-auto px-6 pb-16">
+            <div class="flex flex-col lg:flex-row gap-12">
+                
+                <!-- Project Sidebar Specs (Left or Mobile Top) -->
+                <div class="w-full lg:w-1/3 bg-gray-50 border border-gray-100 rounded-sm p-8 h-fit">
+                    <h3 class="font-bold text-lg uppercase tracking-tight text-gray-900 mb-6 pb-4 border-b border-gray-200">
+                        Project Specifications
+                    </h3>
+
+                    <ul class="flex flex-col gap-5">
+                        <li class="flex flex-col">
+                            <span class="text-xs uppercase text-gray-400 font-semibold tracking-wider mb-1">Client</span>
+                            <span class="text-gray-800 font-medium text-sm sm:text-base">{entry.data.client}</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="text-xs uppercase text-gray-400 font-semibold tracking-wider mb-1">Location</span>
+                            <span class="text-gray-800 font-medium text-sm sm:text-base">{entry.data.location}</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="text-xs uppercase text-gray-400 font-semibold tracking-wider mb-1">Category</span>
+                            <span class="text-amber-500 font-semibold text-sm sm:text-base uppercase tracking-wider">{entry.data.category}</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="text-xs uppercase text-gray-400 font-semibold tracking-wider mb-1">Year Completed</span>
+                            <span class="text-gray-800 font-medium text-sm sm:text-base">{entry.data.year}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Markdown Content Area (Right) -->
+                <div class="w-full lg:w-2/3">
+                    <div class="project-content text-gray-700 leading-relaxed text-base">
+                        {Content ? <Content /> : plainContent.split('\n\n').filter(Boolean).map((paragraph) => <p>{paragraph}</p>)}
+                    </div>
+
+                    <!-- Navigation Footer -->
+                    <div class="mt-12 pt-8 border-t border-gray-100 flex justify-between items-center">
+                        <a href="/projects" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-amber-400 transition">
+                            <Icon name="mdi:arrow-left" size={18} /> Back to Projects
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+</Layout>
+
+<style is:global>
+    /* Scoped project markdown styling */
+    .project-content h2 {
+        font-size: 1.65rem;
+        font-weight: 700;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #111827;
+        text-transform: uppercase;
+        letter-spacing: -0.025em;
+        border-bottom: 2px solid #f3f4f6;
+        padding-bottom: 0.5rem;
+    }
+
+    .project-content h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-top: 1.75rem;
+        margin-bottom: 0.75rem;
+        color: #1f2937;
+    }
+
+    .project-content p {
+        margin-bottom: 1.5rem;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #4b5563;
+    }
+
+    .project-content ul {
+        list-style-type: square;
+        padding-left: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .project-content li {
+        margin-bottom: 0.5rem;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #4b5563;
+    }
+
+    .project-content strong {
+        color: #111827;
+        font-weight: 600;
+    }
+</style>

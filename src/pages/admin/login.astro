@@ -1,0 +1,89 @@
+---
+import { isAdmin, loginAdmin } from '../../lib/server/adminAuth';
+import { getCsrfToken, validateCsrf } from '../../lib/server/csrf';
+import '../../styles/global.css';
+
+if (await isAdmin(Astro)) {
+  return Astro.redirect('/admin');
+}
+
+let error = '';
+const csrfToken = getCsrfToken(Astro);
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  if (!validateCsrf(Astro, formData)) {
+    error = 'Sesi form tidak valid. Muat ulang halaman lalu coba lagi.';
+  } else {
+    const email = String(formData.get('email') || '');
+    const password = String(formData.get('password') || '');
+    const result = await loginAdmin(Astro, email, password);
+
+    if (result.ok) {
+      return Astro.redirect('/admin');
+    }
+
+    error = result.message;
+  }
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Admin | BuildPRO</title>
+  </head>
+  <body class="font-poppins bg-gray-950 text-white">
+    <main class="flex min-h-screen items-center justify-center px-6">
+      <section class="w-full max-w-md rounded-2xl bg-white p-8 text-gray-900 shadow-xl">
+        <div class="mb-8">
+          <a href="/" class="text-2xl font-bold">
+            Build<span class="text-amber-400">PRO</span>
+          </a>
+          <h1 class="mt-6 text-2xl font-bold">Admin Login</h1>
+          <p class="mt-2 text-sm text-gray-500">Masuk untuk mengelola blog dan project.</p>
+        </div>
+
+        {error && (
+          <div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <form method="post" class="space-y-5">
+          <input type="hidden" name="_csrf" value={csrfToken} />
+          <div>
+            <label for="email" class="mb-2 block text-sm font-medium text-gray-700">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+            />
+          </div>
+
+          <div>
+            <label for="password" class="mb-2 block text-sm font-medium text-gray-700">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-500 hover:text-gray-900"
+          >
+            Login
+          </button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

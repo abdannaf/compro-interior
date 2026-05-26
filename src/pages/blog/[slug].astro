@@ -1,0 +1,194 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/StaticIcon.astro';
+import { getSupabaseAdmin, hasSupabaseConfig } from '../../lib/server/supabaseAdmin';
+
+import blog1 from '../../assets/grid-1.png';
+import blog2 from '../../assets/grid-2.png';
+import blog3 from '../../assets/grid-3.png';
+import blog4 from '../../assets/grid-4.png';
+
+// Determine the consistent image to display
+const fallbackImages = [blog1, blog2, blog3, blog4];
+const slug = Astro.params.slug;
+let entry = null;
+let Content = null;
+let plainContent = '';
+let imageSrc = fallbackImages[0].src;
+
+if (hasSupabaseConfig()) {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('slug', slug)
+        .eq('published', true)
+        .maybeSingle();
+
+    if (data) {
+        entry = {
+            id: data.slug,
+            data: {
+                title: data.title,
+                excerpt: data.excerpt || '',
+                author: data.author || 'BuildPRO Team',
+                date: data.created_at,
+                tags: data.tags || [],
+            },
+        };
+        plainContent = data.content || '';
+        imageSrc = data.image_url || imageSrc;
+    }
+}
+
+if (!entry && hasSupabaseConfig()) {
+    return Astro.redirect('/blog');
+}
+
+if (!entry) {
+    const allBlogs = await getCollection('blog');
+    const contentEntry = allBlogs.find((blog) => blog.id === slug);
+
+    if (!contentEntry) {
+        return Astro.redirect('/blog');
+    }
+
+    entry = contentEntry;
+    const rendered = await render(contentEntry);
+    Content = rendered.Content;
+    const blogIndex = allBlogs.findIndex((b) => b.id === entry.id);
+    imageSrc = fallbackImages[blogIndex !== -1 ? blogIndex % fallbackImages.length : 0].src;
+}
+---
+
+<Layout title={`${entry.data.title} | BuildPRO`} description={entry.data.excerpt} navVariant="solid">
+    <main class="pt-24 min-h-screen bg-white font-poppins">
+        
+        <!-- Article Header Banner -->
+        <article class="max-w-4xl mx-auto px-6 py-8">
+            <nav class="flex gap-2 text-xs uppercase tracking-wider text-amber-400 mb-6">
+                <a href="/" class="hover:underline">Home</a>
+                <span>/</span>
+                <a href="/blog" class="hover:underline">Blog</a>
+                <span>/</span>
+                <span class="text-gray-400 truncate max-w-50">{entry.data.title}</span>
+            </nav>
+
+            <h1 class="text-3xl md:text-5xl font-bold text-gray-900 leading-tight uppercase tracking-tight mb-6">
+                {entry.data.title}
+            </h1>
+
+            <!-- Meta info -->
+            <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 pb-8 border-b border-gray-100">
+                <span class="flex items-center gap-2">
+                    <Icon name="mdi:account-outline" size={18} class="text-amber-400"/>
+                    <span>By <strong class="text-gray-900 font-medium">{entry.data.author}</strong></span>
+                </span>
+                <span class="flex items-center gap-2">
+                    <Icon name="mdi:clock-outline" size={18} class="text-amber-400"/>
+                    <span>{new Date(entry.data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </span>
+                {entry.data.tags && entry.data.tags.length > 0 && (
+                    <div class="flex gap-2">
+                        {entry.data.tags.map((tag) => (
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-sm uppercase tracking-wider">
+                                #{tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <!-- Featured Image -->
+            <div class="my-8 overflow-hidden rounded-sm shadow-sm aspect-video max-h-120">
+                <img
+                    src={imageSrc}
+                    alt={entry.data.title}
+                    class="w-full h-full object-cover"
+                />
+            </div>
+
+            <!-- Markdown content body -->
+            <div class="article-content max-w-none text-gray-700 leading-relaxed text-base">
+                {Content ? <Content /> : plainContent.split('\n\n').filter(Boolean).map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+
+            <!-- Share/Footer -->
+            <div class="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <a href="/blog" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-amber-400 transition">
+                    <Icon name="mdi:arrow-left" size={18} /> Back to Blog
+                </a>
+                
+                <div class="flex items-center gap-3">
+                    <span class="text-xs uppercase text-gray-400 font-semibold tracking-wider">Share:</span>
+                    <a href="#" class="p-2 bg-gray-50 hover:bg-amber-400 hover:text-white transition rounded-full text-gray-500" aria-label="Share on Twitter">
+                        <Icon name="mdi:twitter" size={16} />
+                    </a>
+                    <a href="#" class="p-2 bg-gray-50 hover:bg-amber-400 hover:text-white transition rounded-full text-gray-500" aria-label="Share on Facebook">
+                        <Icon name="mdi:facebook" size={16} />
+                    </a>
+                </div>
+            </div>
+
+        </article>
+
+    </main>
+</Layout>
+
+<style is:global>
+    /* Scoped article typography styling */
+    .article-content h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        color: #111827;
+        text-transform: uppercase;
+        letter-spacing: -0.025em;
+    }
+    
+    .article-content h3 {
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        color: #1f2937;
+    }
+
+    .article-content p {
+        margin-bottom: 1.5rem;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #4b5563;
+    }
+
+    .article-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .article-content li {
+        margin-bottom: 0.5rem;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #4b5563;
+    }
+    
+    .article-content strong {
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .article-content blockquote {
+        border-left: 4px solid #f59e0b;
+        padding-left: 1.25rem;
+        margin: 1.5rem 0;
+        font-style: italic;
+        color: #4b5563;
+        background-color: #fffbeb;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+</style>

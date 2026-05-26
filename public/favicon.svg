@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BuildPRO">
+  <rect width="64" height="64" rx="14" fill="#fbbf24"/>
+  <path d="M14 35.5 32 18l18 17.5v14.2H37.5V38.8h-11v10.9H14V35.5Z" fill="#111827"/>
+  <path d="M22 17h7v8.1l-7 6.8V17Z" fill="#111827"/>
+  <path d="M39 24.5h8v8h-8v-8Z" fill="#ffffff"/>
+</svg>

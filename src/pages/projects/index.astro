@@ -1,0 +1,180 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import Icon from '../../components/StaticIcon.astro';
+import { getSupabaseAdmin, hasSupabaseConfig } from '../../lib/server/supabaseAdmin';
+
+import proj1 from '../../assets/grid-1.png';
+import proj2 from '../../assets/grid-2.png';
+import proj3 from '../../assets/grid-3.png';
+
+const fallbackImages = [proj1, proj2, proj3];
+
+let projects = [];
+
+if (hasSupabaseConfig()) {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false });
+
+  if (!error && data) {
+    projects = data.map((project) => ({
+      id: project.slug,
+      imageUrl: project.image_url,
+      data: {
+        title: project.title,
+        location: project.location || '',
+        category: project.category || 'General',
+        excerpt: project.excerpt || '',
+      },
+    }));
+  }
+}
+
+if (!hasSupabaseConfig()) {
+  const allProjects = await getCollection('projects');
+  projects = allProjects.map((project, index) => ({
+    id: project.id,
+    imageUrl: fallbackImages[index % fallbackImages.length].src,
+    data: project.data,
+  }));
+}
+
+const categories = ['All', ...new Set(projects.map((p) => p.data.category))];
+---
+
+<Layout
+  title="Our Projects | BuildPRO"
+  description="Discover our portfolio of award-winning architectural, interior design, and construction projects across Indonesia."
+  navVariant="solid"
+>
+  <main id="main-content" class="min-h-screen bg-white pt-24">
+    <section class="relative overflow-hidden bg-gray-950 px-5 py-16 text-white sm:px-6 md:px-12 lg:px-24">
+      <div class="relative z-10 mx-auto max-w-4xl">
+        <nav class="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">
+          <a href="/" class="transition hover:text-white">Home</a>
+          <span class="text-white/30">/</span>
+          <span class="text-white/60">Projects</span>
+        </nav>
+        <h1 class="text-4xl font-bold leading-tight md:text-5xl">Our Projects</h1>
+        <p class="mt-4 max-w-2xl text-sm leading-relaxed text-gray-400 md:text-base">
+          A curated portfolio of residential, commercial, and hospitality spaces, each built with care and precision.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-pad container-site">
+      {projects.length === 0 ? (
+        <div class="rounded-2xl border border-dashed border-gray-200 bg-[#fafafa] px-8 py-20 text-center">
+          <Icon name="mdi:image-filter-hdr-outline" size={48} class="mx-auto text-amber-400" />
+          <p class="mt-4 text-lg font-semibold text-gray-900">No projects yet</p>
+          <p class="mt-2 text-sm text-gray-500">Published work will appear here soon.</p>
+        </div>
+      ) : (
+        <>
+          <div class="mb-10 flex flex-wrap gap-2" id="project-filters" role="tablist" aria-label="Filter by category">
+            {categories.map((cat, i) => (
+              <button
+                type="button"
+                class:list={[
+                  'rounded-full border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition duration-300',
+                  i === 0
+                    ? 'border-amber-400 bg-amber-400 text-gray-900'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-amber-300 hover:text-amber-600',
+                ]}
+                data-filter={cat}
+                aria-pressed={i === 0 ? 'true' : 'false'}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" id="projects-grid">
+            {projects.map((project, index) => {
+              const imageSrc = project.imageUrl || fallbackImages[index % fallbackImages.length].src;
+
+              return (
+                <article
+                  class="project-card group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg transition duration-500 hover:-translate-y-2 hover:border-amber-200/50 hover:shadow-2xl"
+                  data-category={project.data.category}
+                >
+                  <a href={`/projects/${project.id}`} class="relative block overflow-hidden">
+                    <img
+                      src={imageSrc}
+                      alt={project.data.title}
+                      loading="lazy"
+                      class="h-72 w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent"></div>
+                    <span class="absolute right-5 top-5 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-900">
+                      {project.data.category}
+                    </span>
+                    <span class="absolute bottom-5 right-5 flex h-11 w-11 items-center justify-center rounded-full bg-amber-400 text-gray-900 opacity-0 shadow-lg transition duration-500 group-hover:opacity-100">
+                      <Icon name="mdi:arrow-top-right" size={20} class="text-current" />
+                    </span>
+                  </a>
+
+                  <div class="p-7">
+                    <p class="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-gray-400">
+                      <Icon name="mdi:map-marker-outline" size={14} class="text-amber-400" />
+                      {project.data.location || 'Indonesia'}
+                    </p>
+                    <h2 class="mt-2 text-xl font-bold text-gray-900 transition group-hover:text-amber-500">
+                      <a href={`/projects/${project.id}`}>{project.data.title}</a>
+                    </h2>
+                    {project.data.excerpt && (
+                      <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-gray-500">
+                        {project.data.excerpt}
+                      </p>
+                    )}
+                    <a
+                      href={`/projects/${project.id}`}
+                      class="mt-5 inline-flex items-center gap-2 border-t border-gray-100 pt-5 text-sm font-semibold text-gray-900 transition hover:gap-3 hover:text-amber-500"
+                    >
+                      View details
+                      <Icon name="mdi:arrow-right" size={18} class="text-amber-500" />
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const filterButtons = document.querySelectorAll('[data-filter]');
+  const cards = document.querySelectorAll('.project-card');
+
+  const activeClasses = ['border-amber-400', 'bg-amber-400', 'text-gray-900'];
+  const inactiveClasses = ['border-gray-200', 'bg-white', 'text-gray-600'];
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-filter');
+
+      filterButtons.forEach((b) => {
+        b.classList.remove(...activeClasses);
+        b.classList.add(...inactiveClasses);
+        b.setAttribute('aria-pressed', 'false');
+      });
+
+      btn.classList.remove(...inactiveClasses);
+      btn.classList.add(...activeClasses);
+      btn.setAttribute('aria-pressed', 'true');
+
+      cards.forEach((card) => {
+        const category = card.getAttribute('data-category');
+        const show = filter === 'All' || category === filter;
+        card.classList.toggle('hidden', !show);
+      });
+    });
+  });
+</script>

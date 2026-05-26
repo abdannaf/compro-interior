@@ -1,0 +1,307 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #fbbf24;
+  --color-brand-dark: #f59e0b;
+  --color-surface: #f8f9fa;
+  --color-ink: #111827;
+}
+
+@layer base {
+  * {
+    -webkit-text-stroke: 0;
+    text-shadow: none;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .container-site {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-6 md:px-12 lg:px-24;
+  }
+
+  .section-pad {
+    @apply py-20 md:py-24 lg:py-28;
+  }
+
+  .section-label {
+    @apply inline-flex items-center gap-2 rounded-2xl border border-gray-100 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm;
+  }
+
+  .section-label-dark {
+    @apply inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/80 backdrop-blur-md;
+  }
+
+  .section-eyebrow {
+    @apply flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-amber-400;
+  }
+
+  .section-eyebrow::before {
+    content: "";
+    @apply h-0.5 w-8 bg-amber-400;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-7 py-4 text-sm font-semibold text-gray-950 shadow-lg shadow-amber-400/20 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-xl hover:shadow-amber-400/25 active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-4 text-sm font-semibold text-gray-700 transition duration-300 hover:-translate-y-0.5 hover:border-gray-900 hover:text-gray-900 active:translate-y-0;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-7 py-4 text-sm font-semibold text-white shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-amber-400 hover:text-gray-950 hover:shadow-amber-400/25 active:translate-y-0;
+  }
+
+  .card-hover {
+    @apply transition duration-500 hover:-translate-y-2 hover:shadow-2xl;
+  }
+
+  .skeleton-shimmer {
+    @apply relative overflow-hidden bg-gray-200;
+  }
+
+  .skeleton-shimmer::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* ===== Font Utilities ===== */
+.font-poppins {
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.font-inter {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ===== Prose Styles for Blog/Project Content ===== */
+.prose {
+  max-width: 75ch;
+  line-height: 1.8;
+  color: #374151;
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+.prose h3 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+.prose p {
+  margin-bottom: 1.25rem;
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose a {
+  color: #f59e0b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  color: #d97706;
+}
+
+.prose img {
+  border-radius: 0.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prose blockquote {
+  border-left: 4px solid #f59e0b;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+::selection {
+  background-color: #fbbf24;
+  color: #111827;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes imageFade {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+/* Hero entrance: jangan pakai utility opacity-0 Tailwind karena akan menimpa animasi. */
+.hero-enter {
+  opacity: 0;
+  transform: translateY(28px);
+  animation: fadeInUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: opacity, transform;
+}
+
+.hero-enter-delay-1 { animation-delay: 0.1s; }
+.hero-enter-delay-2 { animation-delay: 0.22s; }
+.hero-enter-delay-3 { animation-delay: 0.34s; }
+.hero-enter-delay-4 { animation-delay: 0.46s; }
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.animate-progress {
+  animation: progress 5s linear forwards;
+}
+
+.animate-image-fade {
+  animation: imageFade 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-bounce-soft {
+  animation: bounceSoft 2s ease-in-out infinite;
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter,
+  .animate-fade-in,
+  .animate-image-fade,
+  .animate-bounce-soft {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .animate-progress {
+    animation: none !important;
+    width: 100% !important;
+  }
+}
+
+.highlight-text {
+  @apply relative inline-block text-amber-400;
+}
+
+.highlight-text::after {
+  content: "";
+  @apply absolute -bottom-0.5 left-0 -z-10 h-3 w-full rounded-sm bg-amber-200/50;
+}
+
+/* Astro Icon: panah mengikuti warna teks parent */
+:global(.astro-icon),
+:global([data-icon]) {
+  display: inline-flex;
+  color: currentColor;
+}
+
+:global(.astro-icon svg),
+:global([data-icon] svg) {
+  fill: currentColor;
+}
