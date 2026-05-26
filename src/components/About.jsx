@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Icon from './Icon';
 import ArrowIcon from './ui/ArrowIcon';
-import AboutUs from '../assets/hero.png';
+import AboutUs from '../assets/hero.webp';
 import { useReveal } from '../hooks/useReveal';
 
 function useCountUp(target, duration = 1800, start = false) {

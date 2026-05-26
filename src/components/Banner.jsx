@@ -1,6 +1,6 @@
 import Icon from './Icon';
 import ArrowIcon from './ui/ArrowIcon';
-import heroBg from '../assets/hero.png';
+import heroBg from '../assets/hero.webp';
 
 export default function Banner() {
   return (

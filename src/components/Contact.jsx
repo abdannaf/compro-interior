@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Icon from './Icon';
 import ArrowIcon from './ui/ArrowIcon';
 import { useReveal } from '../hooks/useReveal';
-import contactImg from '../assets/hero.png';
+import contactImg from '../assets/hero.webp';
 
 export default function Contact() {
   const [focused, setFocused] = useState(null);

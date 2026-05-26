@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import Icon from './Icon';
 import { useReveal } from '../hooks/useReveal';
 
-import room1 from '../assets/grid-1.png';
-import room2 from '../assets/grid-2.png';
-import room3 from '../assets/grid-3.png';
-import room4 from '../assets/grid-4.png';
+import room1 from '../assets/grid-1.webp';
+import room2 from '../assets/grid-2.webp';
+import room3 from '../assets/grid-3.webp';
+import room4 from '../assets/grid-4.webp';
 
 const features = [
   {

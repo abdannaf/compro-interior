@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Icon from './Icon';
 import ArrowIcon from './ui/ArrowIcon';
 import { useReveal } from '../hooks/useReveal';
-import achieveImg from '../assets/grid-4.png';
+import achieveImg from '../assets/grid-4.webp';
 
 function useCountUp(target, duration = 2000, start = false) {
   const [count, setCount] = useState(0);

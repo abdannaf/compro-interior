@@ -5,10 +5,10 @@ import { useReveal } from '../hooks/useReveal';
 import { useFetchedList } from '../hooks/useFetchedList';
 import { formatPostDate } from '../lib/formatDate';
 
-import photo1 from '../assets/grid-1.png';
-import photo2 from '../assets/grid-2.png';
-import photo3 from '../assets/grid-3.png';
-import photo4 from '../assets/grid-4.png';
+import photo1 from '../assets/grid-1.webp';
+import photo2 from '../assets/grid-2.webp';
+import photo3 from '../assets/grid-3.webp';
+import photo4 from '../assets/grid-4.webp';
 
 const FALLBACK_IMAGES = [photo1.src, photo2.src, photo3.src, photo4.src];
 
